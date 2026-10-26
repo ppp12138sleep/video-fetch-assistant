@@ -1,0 +1,99 @@
+{
+  "manifest_version": 3,
+  "name": "视频获取助手",
+  "short_name": "获取视频",
+  "version": "1.0.0",
+  "description": "在视频播放页一键获取当前视频，先预览确认，再由本机转封装为可播放的 MP4。",
+  "minimum_chrome_version": "116",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "视频获取助手：获取当前视频",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "options_page": "options/index.html",
+  "permissions": [
+    "downloads",
+    "storage",
+    "scripting",
+    "activeTab",
+    "offscreen",
+    "declarativeNetRequest",
+    "alarms"
+  ],
+  "host_permissions": [
+    "*://*.douyin.com/*",
+    "*://*.iesdouyin.com/*",
+    "*://*.douyinvod.com/*",
+    "*://*.douyinpic.com/*",
+    "*://*.byteimg.com/*",
+    "*://*.bytecdn.cn/*",
+    "*://*.bytecdntp.com/*",
+    "*://*.bytedance.com/*",
+    "*://*.snssdk.com/*",
+    "*://*.zjcdn.com/*",
+    "*://*.ixigua.com/*",
+    "*://*.kuaishou.com/*",
+    "*://*.kwaicdn.com/*",
+    "*://*.kwimgs.com/*",
+    "*://*.yximgs.com/*",
+    "*://*.kspkg.com/*",
+    "*://*.kscdn.com/*",
+    "*://*.bilibili.com/*",
+    "*://*.bilivideo.com/*",
+    "*://*.bilivideo.cn/*",
+    "*://*.hdslb.com/*",
+    "*://*.akamaized.net/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*"
+  ],
+  "optional_host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.douyin.com/*",
+        "*://*.iesdouyin.com/*",
+        "*://*.kuaishou.com/*",
+        "*://*.bilibili.com/*",
+        "http://localhost/*",
+        "http://127.0.0.1/*"
+      ],
+      "js": ["network-hook.js"],
+      "run_at": "document_start",
+      "world": "MAIN",
+      "all_frames": false
+    },
+    {
+      "matches": [
+        "*://*.douyin.com/*",
+        "*://*.iesdouyin.com/*",
+        "*://*.kuaishou.com/*",
+        "*://*.bilibili.com/*",
+        "http://localhost/*",
+        "http://127.0.0.1/*"
+      ],
+      "js": ["content-script.js"],
+      "run_at": "document_idle",
+      "world": "ISOLATED",
+      "all_frames": false
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; worker-src 'self'; connect-src * data: blob:; img-src 'self' data: blob: http: https:; media-src 'self' blob: data: http: https:; style-src 'self' 'unsafe-inline'; font-src 'self'"
+  }
+}

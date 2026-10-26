@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>视频获取助手 · 设置与说明</title>
+    <link rel="stylesheet" href="./options.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="header">
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 40 40">
+            <rect width="40" height="40" rx="12" fill="url(#logo-grad)" />
+            <path d="M20 9.5v14m0 0 5.2-5.2M20 23.5l-5.2-5.2" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M13 27.8h14" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".9" />
+            <defs>
+              <linearGradient id="logo-grad" x1="4" y1="2" x2="36" y2="38" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#FF7A45" />
+                <stop offset="1" stop-color="#F04424" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div>
+          <h1>视频获取助手</h1>
+          <p>只在播放页出现「获取视频」，先预览、再下载，所有处理都在本机完成。</p>
+        </div>
+        <span class="version">v1.0.0</span>
+      </header>
+
+      <main>
+        <section class="card" aria-labelledby="generic-title">
+          <div class="card__head">
+            <div>
+              <p class="eyebrow">通用网站支持</p>
+              <h2 id="generic-title">让任意视频网页出现「获取视频」按钮</h2>
+            </div>
+            <span id="permission-state" class="badge">读取中…</span>
+          </div>
+          <p class="muted">
+            抖音、快手、哔哩哔哩与本地测试页默认启用。其他网站需要你主动授权后才会注入按钮，扩展不会默认读取所有网站的页面。
+          </p>
+          <div class="actions">
+            <button id="toggle-generic" class="button button--primary" type="button">正在读取权限…</button>
+            <button id="open-test" class="button button--secondary" type="button">打开本地测试页</button>
+          </div>
+          <p id="permission-message" class="status-line" role="status" aria-live="polite"></p>
+          <div class="notice">
+            <strong>不授权也能用</strong>
+            <span>在任意网页点击浏览器工具栏的扩展图标，可通过 activeTab 临时向当前标签页注入按钮；刷新页面后失效。</span>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="permissions-title">
+          <p class="eyebrow">权限说明</p>
+          <h2 id="permissions-title">为什么需要这些权限</h2>
+          <div class="permission-grid">
+            <div class="permission-item">
+              <h3>downloads</h3>
+              <p>把最终 MP4 保存到浏览器下载目录，并读取下载进度、取消中断的下载。</p>
+            </div>
+            <div class="permission-item">
+              <h3>storage</h3>
+              <p>使用 <code>storage.session</code> 保存任务元数据。临时媒体分片保存在本机 IndexedDB，完成后清理。</p>
+            </div>
+            <div class="permission-item">
+              <h3>scripting + activeTab</h3>
+              <p>在用户点击工具栏图标时向当前标签页注入按钮；以及在授权通用网站后动态注册内容脚本。</p>
+            </div>
+            <div class="permission-item">
+              <h3>offscreen</h3>
+              <p>Service Worker 没有 DOM 且可能被回收。HLS/DASH 解析、ffmpeg.wasm 转封装和 Blob 下载地址必须在 offscreen 文档中完成。</p>
+            </div>
+            <div class="permission-item">
+              <h3>declarativeNetRequest</h3>
+              <p>仅当媒体服务器要求防盗链 Referer 时，为当前任务涉及的媒体域名添加临时会话规则，任务结束立即移除。</p>
+            </div>
+            <div class="permission-item">
+              <h3>alarms</h3>
+              <p>每 5 分钟清理过期任务、临时分片和 DNR 会话规则，避免残留数据占用空间。</p>
+            </div>
+            <div class="permission-item">
+              <h3>站点权限</h3>
+              <p>默认只包含抖音、快手、哔哩哔哩及其公开 CDN 域名，以及 <code>localhost</code> / <code>127.0.0.1</code> 测试地址。</p>
+            </div>
+            <div class="permission-item">
+              <h3>可选全站权限</h3>
+              <p>仅在你点击上方按钮并确认 Chrome/Edge 权限弹窗后授予。可随时关闭。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="matrix-title">
+          <p class="eyebrow">支持矩阵</p>
+          <h2 id="matrix-title">当前能力与明确边界</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>平台 / 场景</th>
+                  <th>直链 MP4</th>
+                  <th>HLS</th>
+                  <th>DASH / 分轨</th>
+                  <th>DRM</th>
+                  <th>状态</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>抖音</td>
+                  <td>支持</td>
+                  <td>支持</td>
+                  <td>依赖页面捕获</td>
+                  <td>拒绝</td>
+                  <td><span class="limit">适配器已实现，待实机复核</span></td>
+                </tr>
+                <tr>
+                  <td>快手</td>
+                  <td>支持</td>
+                  <td>支持</td>
+                  <td>依赖页面捕获</td>
+                  <td>拒绝</td>
+                  <td><span class="limit">适配器已实现，待实机复核</span></td>
+                </tr>
+                <tr>
+                  <td>哔哩哔哩</td>
+                  <td>支持</td>
+                  <td>支持</td>
+                  <td>支持音视频合并</td>
+                  <td>拒绝</td>
+                  <td><span class="ok">公开页解析通过</span></td>
+                </tr>
+                <tr>
+                  <td>通用 HTML5 视频</td>
+                  <td>支持</td>
+                  <td>支持</td>
+                  <td>支持标准 MPD</td>
+                  <td>拒绝</td>
+                  <td><span class="ok">本地端到端通过</span></td>
+                </tr>
+                <tr>
+                  <td>直播 / 付费 / 仅登录</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td><span class="limit">明确提示，不伪装成功</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="muted small">
+            平台页面结构变化、签名 URL 过期、登录态失效或 CDN 防盗链均可能导致失败；扩展会显示具体原因，不会输出损坏文件。
+          </p>
+        </section>
+
+        <section class="card" aria-labelledby="privacy-title">
+          <p class="eyebrow">隐私与合规</p>
+          <h2 id="privacy-title">不上传、不记录敏感地址</h2>
+          <ul class="bullets">
+            <li>视频、媒体地址、签名参数和页面内容只在本机处理，不发送到任何第三方服务器。</li>
+            <li>不伪造 Cookie、不读取登录凭证、不破解会员 / 地区限制 / DRM / 去水印。</li>
+            <li>日志中的完整媒体 URL 会被脱敏；临时分片在完成、取消或过期后清理。</li>
+            <li>仅处理你有权保存的公开、非 DRM 内容，并遵守平台服务条款与著作权法。</li>
+          </ul>
+        </section>
+      </main>
+
+      <footer>
+        <span>视频获取助手 v1.0.0 · 本机处理</span>
+        <span>支持 Microsoft Edge / Google Chrome（Manifest V3）</span>
+      </footer>
+    </div>
+    <script type="module" src="./options.ts"></script>
+  </body>
+</html>

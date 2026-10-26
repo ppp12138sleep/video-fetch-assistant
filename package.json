@@ -1,0 +1,35 @@
+{
+  "name": "video-fetch-assistant",
+  "private": true,
+  "version": "1.0.0",
+  "description": "视频获取助手：在视频播放页解析当前视频，经用户确认后在本机转封装为可播放的 MP4。",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "npm run typecheck && node scripts/build.mjs",
+    "build:only": "node scripts/build.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:page": "vite --config vite.testpage.config.ts"
+  },
+  "dependencies": {
+    "@ffmpeg/core": "0.12.10",
+    "@ffmpeg/ffmpeg": "0.12.15",
+    "hls.js": "1.7.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@types/chrome": "0.3.6",
+    "@types/node": "24.10.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "typescript": "5.9.3",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
+  },
+  "engines": {
+    "node": ">=20.19"
+  }
+}

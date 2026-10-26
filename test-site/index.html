@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <meta property="og:title" content="本地验收示例视频" />
+    <meta property="og:site_name" content="本地测试页" />
+    <meta property="og:type" content="video.other" />
+    <meta property="og:image" content="./media/poster.jpg" />
+    <meta property="og:video:width" content="640" />
+    <meta property="og:video:height" content="360" />
+    <title>视频获取助手 · 本地验收页</title>
+    <link rel="icon" type="image/png" href="./media/icon32.png" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">LOCAL ACCEPTANCE</p>
+        <h1>视频获取助手 · 本地验收页</h1>
+        <p class="lead">合成测试视频（FFmpeg testsrc2 + 正弦音），无第三方版权内容，仅用于验证按钮、解析、预览、HLS 重封装与下载。</p>
+      </div>
+      <span class="route-counter">SPA 路由：<strong id="route-name">home</strong></span>
+    </header>
+
+    <main>
+      <section class="player-card">
+        <div class="player-card__head">
+          <div>
+            <p class="eyebrow">PRIMARY VIDEO</p>
+            <h2>本地示例 · 640×360 · 12 秒 · 带声音</h2>
+          </div>
+          <span id="mode-label" class="mode-label">直链 MP4</span>
+        </div>
+        <div id="player-wrap" class="player-wrap">
+          <video
+            id="player"
+            controls
+            playsinline
+            preload="metadata"
+            poster="./media/poster.jpg"
+            src="./media/sample.mp4"
+          ></video>
+          <span class="player-corner">右下角应出现「获取视频」</span>
+        </div>
+        <div class="controls">
+          <button id="use-mp4" class="button button--primary" type="button">直链 MP4</button>
+          <button id="use-hls" class="button button--secondary" type="button">切换 HLS（hls.js）</button>
+          <button id="use-dash" class="button button--secondary" type="button">切换 DASH（MPD）</button>
+          <button id="use-webm" class="button button--secondary" type="button">切换 WebM</button>
+          <button id="fullscreen-custom" class="button button--secondary" type="button">容器全屏</button>
+          <button id="fullscreen-native" class="button button--secondary" type="button">原生 video 全屏</button>
+          <button id="remove-video" class="button button--ghost" type="button">模拟无视频</button>
+          <button id="restore-video" class="button button--ghost" type="button">恢复视频</button>
+        </div>
+        <p id="status" class="status" role="status" aria-live="polite"></p>
+        <video id="ad-video" class="ad-hidden" playsinline muted src="./media/sample.mp4"></video>
+      </section>
+
+      <section class="panel">
+        <div class="panel__head">
+          <div>
+            <p class="eyebrow">SPA ROUTES</p>
+            <h2>连续切换 5 个路由</h2>
+          </div>
+          <span class="host-count">页面中的按钮宿主：<strong id="host-count">0</strong></span>
+        </div>
+        <p>按钮应始终只有一个，并在路由切换后重新检测当前主视频。以下按钮通过 <code>history.pushState</code> 切换地址，不刷新页面。</p>
+        <div class="route-grid">
+          <button class="route" data-route="alpha" type="button">路由 A</button>
+          <button class="route" data-route="beta" type="button">路由 B</button>
+          <button class="route" data-route="gamma" type="button">路由 C</button>
+          <button class="route" data-route="delta" type="button">路由 D</button>
+          <button class="route" data-route="epsilon" type="button">路由 E</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <p class="eyebrow">MANUAL CHECKS</p>
+        <h2>建议验收顺序</h2>
+        <ol class="steps">
+          <li>扩展加载后刷新本页，确认 1 秒内右下角出现「获取视频」，页面布局不跳动。</li>
+          <li>点击按钮，确认新标签页展示标题、时长 0:12、分辨率 640×360、格式与文件大小（应接近 1.15 MB）。</li>
+          <li>点击「下载 MP4」，确认文件能播放、有声音、时长正确，下载文件名包含平台、标题、分辨率与日期。</li>
+          <li>切换 HLS 后重复获取，确认最终 MP4 能正常播放。失败时应展示具体原因，而不是坏文件。</li>
+          <li>切换 DASH（MPD）后获取，扩展应下载分离的视频/音频分片并在本机合并；Chromium 不原生播放 DASH，预览区显示封面提示属正常。</li>
+          <li>连续点击路由 A–E，确认按钮始终只有一个；按 Tab 可聚焦按钮。</li>
+          <li>点击「容器全屏」确认按钮在全屏容器右下角；退出全屏后只保留一个按钮。</li>
+          <li>点击「模拟无视频」后按钮消失；恢复后重新出现。</li>
+        </ol>
+        <p class="fine">HLS 测试源与 MP4 均由本页本地文件提供，不依赖外网。浏览器需允许扩展访问本地测试地址。</p>
+      </section>
+    </main>
+
+    <footer>
+      <span>仅用于本地验收 · 合成视频无第三方版权</span>
+      <span>视频获取助手 v1.0</span>
+    </footer>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

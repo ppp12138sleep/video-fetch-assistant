@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.npm-cache/
+.edge-profile*/
+.test-downloads*/
+.test-output/
+.tmp-*
+*.log
+.DS_Store
+Thumbs.db
