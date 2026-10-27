@@ -49,6 +49,7 @@
           <button id="use-hls" class="button button--secondary" type="button">切换 HLS（hls.js）</button>
           <button id="use-dash" class="button button--secondary" type="button">切换 DASH（MPD）</button>
           <button id="use-webm" class="button button--secondary" type="button">切换 WebM</button>
+          <button id="use-feed" class="button button--secondary" type="button">模拟 feed 预加载</button>
           <button id="fullscreen-custom" class="button button--secondary" type="button">容器全屏</button>
           <button id="fullscreen-native" class="button button--secondary" type="button">原生 video 全屏</button>
           <button id="remove-video" class="button button--ghost" type="button">模拟无视频</button>
@@ -85,6 +86,7 @@
           <li>点击「下载 MP4」，确认文件能播放、有声音、时长正确，下载文件名包含平台、标题、分辨率与日期。</li>
           <li>切换 HLS 后重复获取，确认最终 MP4 能正常播放。失败时应展示具体原因，而不是坏文件。</li>
           <li>切换 DASH（MPD）后获取，扩展应下载分离的视频/音频分片并在本机合并；Chromium 不原生播放 DASH，预览区显示封面提示属正常。</li>
+          <li>点击「模拟 feed 预加载」：当前视频为 12 秒 blob，同时预加载 8 秒与 20 秒视频；获取后应仍显示 0:12，而不是后面预加载的 20 秒视频。</li>
           <li>连续点击路由 A–E，确认按钮始终只有一个；按 Tab 可聚焦按钮。</li>
           <li>点击「容器全屏」确认按钮在全屏容器右下角；退出全屏后只保留一个按钮。</li>
           <li>点击「模拟无视频」后按钮消失；恢复后重新出现。</li>

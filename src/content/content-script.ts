@@ -13,6 +13,7 @@ import { SNAPSHOT_VERSION } from '../shared/types';
 import { parseHttpUrl } from '../shared/url';
 import { selectAdapter } from './adapters';
 import type { AdapterResult } from './adapters';
+import { filterRecordsForCurrentVideo } from './current-media';
 import { FetchButton } from './fetch-button';
 import { showTransientToast } from './feedback-toast';
 import { PageBridge } from './page-bridge';
@@ -220,11 +221,24 @@ class ContentController {
       if (location.href !== pageUrl) {
         throw new AppError('PARSE_FAILED', '解析过程中页面已切换，请重新点击获取视频');
       }
+      // 短视频 feed 会预加载后续作品。blob/MSE 时按当前播放器的时长和
+      // 画面比例筛掉不属于当前视频的网络候选。
+      const mediaFilter = await filterRecordsForCurrentVideo(primary.element, records);
+      if (location.href !== pageUrl) {
+        throw new AppError('PARSE_FAILED', '解析过程中页面已切换，请重新点击获取视频');
+      }
+      if (mediaFilter.status === 'ambiguous') {
+        throw new AppError(
+          'UNSUPPORTED_FORMAT',
+          'multiple preloaded media candidates could not be distinguished',
+          '检测到多个预加载视频，但无法确认当前视频的下载地址。请先暂停或重新播放当前视频，再重试。',
+        );
+      }
       const result = await adapter.collect({
         document,
         video: primary.element,
         pageUrl,
-        records,
+        records: mediaFilter.status === 'matched' ? mediaFilter.records : records,
         hints,
         pageTitle: document.title,
       });

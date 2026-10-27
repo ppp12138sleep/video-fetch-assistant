@@ -9,6 +9,8 @@ const adVideo = document.getElementById('ad-video');
 let player = document.getElementById('player');
 let hls = null;
 let mode = 'mp4';
+let feedBlobUrl = null;
+const feedPreloads = [];
 
 function setStatus(message) {
   statusNode.textContent = message;
@@ -18,6 +20,18 @@ function destroyHls() {
   if (hls) {
     hls.destroy();
     hls = null;
+  }
+}
+
+function cleanupFeed() {
+  for (const video of feedPreloads.splice(0)) {
+    video.removeAttribute('src');
+    video.load();
+    video.remove();
+  }
+  if (feedBlobUrl) {
+    URL.revokeObjectURL(feedBlobUrl);
+    feedBlobUrl = null;
   }
 }
 
@@ -42,6 +56,7 @@ function ensurePlayer() {
 
 function useMp4() {
   destroyHls();
+  cleanupFeed();
   mode = 'mp4';
   modeLabel.textContent = '直链 MP4';
   const video = ensurePlayer();
@@ -52,6 +67,7 @@ function useMp4() {
 
 function useHls() {
   destroyHls();
+  cleanupFeed();
   mode = 'hls';
   modeLabel.textContent = 'HLS · hls.js';
   const video = ensurePlayer();
@@ -70,6 +86,44 @@ function useHls() {
   hls.attachMedia(video);
 }
 
+async function useFeedBlob() {
+  destroyHls();
+  cleanupFeed();
+  mode = 'feed';
+  modeLabel.textContent = 'Feed 模拟 · 12s 当前 + 8s/20s 预加载';
+  const video = ensurePlayer();
+  video.removeAttribute('src');
+  video.load();
+  try {
+    const response = await fetch('./media/sample.mp4');
+    const blob = await response.blob();
+    feedBlobUrl = URL.createObjectURL(blob);
+    video.src = feedBlobUrl;
+    video.muted = true;
+    await video.play().catch(() => undefined);
+    setStatus('当前视频为 12 秒 blob；正在后台预加载 8 秒、20 秒的两条后续视频。');
+    const preload = (src, delay) => {
+      window.setTimeout(() => {
+        const next = document.createElement('video');
+        next.muted = true;
+        next.preload = 'auto';
+        next.src = src;
+        next.dataset.feedPreload = 'true';
+        next.setAttribute('aria-hidden', 'true');
+        next.style.cssText =
+          'position:fixed;left:-10000px;top:0;width:2px;height:2px;opacity:0;pointer-events:none;';
+        document.body.append(next);
+        next.load();
+        feedPreloads.push(next);
+      }, delay);
+    };
+    preload('./media/feed-next-8s.mp4', 700);
+    preload('./media/feed-next-20s.mp4', 1300);
+  } catch (error) {
+    setStatus(`feed 模拟失败：${error.message}`);
+  }
+}
+
 function switchFullscreen(target) {
   if (document.fullscreenElement) {
     void document.exitFullscreen();
@@ -82,6 +136,7 @@ function switchFullscreen(target) {
 
 function useDash() {
   destroyHls();
+  cleanupFeed();
   mode = 'dash';
   modeLabel.textContent = 'DASH · manifest.mpd';
   const video = ensurePlayer();
@@ -92,6 +147,7 @@ function useDash() {
 
 function useWebm() {
   destroyHls();
+  cleanupFeed();
   mode = 'webm';
   modeLabel.textContent = 'WebM · VP9/Opus';
   const video = ensurePlayer();
@@ -104,6 +160,7 @@ document.getElementById('use-mp4').addEventListener('click', useMp4);
 document.getElementById('use-hls').addEventListener('click', useHls);
 document.getElementById('use-dash').addEventListener('click', useDash);
 document.getElementById('use-webm').addEventListener('click', useWebm);
+document.getElementById('use-feed').addEventListener('click', () => void useFeedBlob());
 document.getElementById('fullscreen-custom').addEventListener('click', () => switchFullscreen(wrap));
 document.getElementById('fullscreen-native').addEventListener('click', () => {
   if (mode === 'hls') {
@@ -113,6 +170,7 @@ document.getElementById('fullscreen-native').addEventListener('click', () => {
 });
 document.getElementById('remove-video').addEventListener('click', () => {
   destroyHls();
+  cleanupFeed();
   player?.remove();
   adVideo?.remove();
   setStatus('已移除页面中的所有视频元素，按钮应消失。');
